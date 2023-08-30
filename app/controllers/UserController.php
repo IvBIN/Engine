@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 use app\core\InitController;
+use app\lib\UserOperations;
 
 class UserController extends InitController
 {
@@ -15,8 +16,8 @@ class UserController extends InitController
             'access' => [
                 'rules' =>[
                     [
-                        'actions' => ['login'],
-                        'roles' => ['quest'],
+                        'actions' => ['login', 'registration'],
+                        'roles' => [UserOperations::RoleGuest],
                         'matchCallback' => function () {
                             $this->redirect('/user/profile');
                         }
@@ -35,6 +36,29 @@ class UserController extends InitController
             $login = !empty($_POST['login']) ? $_POST['login'] : null;
             $password = !empty($_POST['password']) ? $_POST['password'] : null;
             $confirm_password = !empty($_POST['confirm_password']) ? $_POST['confirm_password'] : null;
+        }
+        if (empty($username)) {
+            $error_message .= "Введите ваше имя ! <br>";
+        }
+        if (empty($login)) {
+            $error_message .= "Введите ваш логин ! <br>";
+        }
+        if (empty($password)) {
+            $error_message .= "Введите пароль ! <br>";
+        }
+        if (empty($confirm_password)) {
+            $error_message .= "Введите повторный пароль ! <br>";
+        }
+        if (empty($password != $confirm_password)) {
+            $error_message .= "Пароли не совпадают ! <br>";
+        }
+
+        if (empty($error_message)) {
+            $userModel = new UsersModel();
+            $user_id = $userModel->addNewUser($username, $login, $password);
+            if (!empty($user_id)) {
+                $this->redirect('/user/profile');
+            }
         }
         $this->render('registration', [
             'error_message' =>$error_message
