@@ -1,11 +1,15 @@
 <?php
+
 namespace app\controllers;
+
 use app\core\InitController;
 use app\lib\UserOperations;
+use app\models\UsersModel;
 
 class UserController extends InitController
 {
-    public function actionProfile(){
+    public function actionProfile()
+    {
         echo 'Страница профиля';
         var_dump($this->route);
     }
@@ -14,7 +18,7 @@ class UserController extends InitController
     {
         return [
             'access' => [
-                'rules' =>[
+                'rules' => [
                     [
                         'actions' => ['login', 'registration'],
                         'roles' => [UserOperations::RoleGuest],
@@ -36,33 +40,60 @@ class UserController extends InitController
             $login = !empty($_POST['login']) ? $_POST['login'] : null;
             $password = !empty($_POST['password']) ? $_POST['password'] : null;
             $confirm_password = !empty($_POST['confirm_password']) ? $_POST['confirm_password'] : null;
-        }
-        if (empty($username)) {
-            $error_message .= "Введите ваше имя ! <br>";
-        }
-        if (empty($login)) {
-            $error_message .= "Введите ваш логин ! <br>";
-        }
-        if (empty($password)) {
-            $error_message .= "Введите пароль ! <br>";
-        }
-        if (empty($confirm_password)) {
-            $error_message .= "Введите повторный пароль ! <br>";
-        }
-        if (empty($password != $confirm_password)) {
-            $error_message .= "Пароли не совпадают ! <br>";
-        }
-
-        if (empty($error_message)) {
-            $userModel = new UsersModel();
-            $user_id = $userModel->addNewUser($username, $login, $password);
-            if (!empty($user_id)) {
-                $this->redirect('/user/profile');
+            if (empty($username)) {
+                $error_message .= "Введите ваше имя ! <br>";
+            }
+            if (empty($login)) {
+                $error_message .= "Введите ваш логин ! <br>";
+            }
+            if (empty($password)) {
+                $error_message .= "Введите пароль ! <br>";
+            }
+            if (empty($confirm_password)) {
+                $error_message .= "Введите повторный пароль ! <br>";
+            }
+            if ($password != $confirm_password) {
+                $error_message .= "Пароли не совпадают ! <br>";
+            }
+            if (empty($error_message)) {
+                $userModel = new UsersModel();
+                $user_id = $userModel->addNewUser($username, $login, $password);
+                if (!empty($user_id)) {
+                    $this->redirect('/user/profile');
+                }
             }
         }
         $this->render('registration', [
-            'error_message' =>$error_message
+            'error_message' => $error_message
         ]);
+    }
+
+    public function actionLogin()
+    {
+        $this->view->title = 'Авторизация';
+        $error_message = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['btn_login_form'])) {
+            $login = !empty($_POST['login']) ? $_POST['login'] : null;
+            $password = !empty($_POST['password']) ? $_POST['password'] : null;
+            $userModel = new  UsersModel();
+            $result_auth = $userModel->authBylogin($login, $password);
+            if ($result_auth['result']) {
+                $this->redirect('/user/profile');
+            } else {
+                $error_message = $result_auth['error_message'];
+            }
+        }
+        $this->render('login', [
+            'error_message' => $error_message
+        ]);
+    }
+    public function actionLogout()
+    {
+        if (isset($_SESSION['user']['id'])) {
+            unset($_SESSION['user']);
+        }
+        $params = require 'app/config/params.php';
+        $this->redirect('/' . $params['defaultController'] . '/' . $params['defaultAction']);
     }
 }
 

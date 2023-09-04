@@ -1,6 +1,7 @@
 <?php
 
 namespace app\core;
+use app\lib\UserOperations;
 class Router
 {
     protected $params = [];
@@ -60,7 +61,7 @@ class Router
             return true;
         }
         foreach ($behaviors['access']['rules'] as $rule) {
-            if (in_array($this->params['action'], $rule['action'])) {
+            if (in_array($this->params['action'], $rule['actions'])) {
                 if (in_array(UserOperations::getRoleUser(), $rule['roles'])) {
                     return true;
                 } else {
