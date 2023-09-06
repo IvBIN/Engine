@@ -30,7 +30,7 @@ class UsersModel extends BaseModel
             $error_message .= "Введите пароль!<br>";
         }
         if (empty($error_message)) {
-            $users = $this->select('select * from users login = :login', [
+            $users = $this->select('select * from users where login = :login', [
                 'login' => $login
             ]);
             if (!empty($users[0])) {
@@ -48,6 +48,30 @@ class UsersModel extends BaseModel
                 $error_message .= "Пользователь не найден! <br>";
             }
         }
+        return [
+            'result' => $result,
+            'error_message' => $error_message
+        ];
+    }
+
+    public function changePasswordByCurrentPassword($current_password, $new_password, $confirm_new_password)
+    {
+        $result = false;
+        $error_message = '';
+
+        if (empty($current_password)) {
+            $error_message .= "Введите текущий пароль!<br>";
+        }
+        if (empty($new_password)) {
+            $error_message .= "Введите новый пароль!<br>";
+        }
+        if (empty($confirm_new_password)) {
+            $error_message .= "Повторите новый пароль!<br>";
+        }
+        if ($new_password != $confirm_new_password) {
+            $error_message .= "Пароли не совпадают!<br>";
+        }
+
         return [
             'result' => $result,
             'error_message' => $error_message

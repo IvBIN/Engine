@@ -8,12 +8,6 @@ use app\models\UsersModel;
 
 class UserController extends InitController
 {
-    public function actionProfile()
-    {
-        echo 'Страница профиля';
-        var_dump($this->route);
-    }
-
     public function behaviors()
     {
         return [
@@ -25,10 +19,42 @@ class UserController extends InitController
                         'matchCallback' => function () {
                             $this->redirect('/user/profile');
                         }
+                    ],
+                    [
+                        'actions' => ['profile', 'logout'],
+                        'roles' => [UserOperations::RoleUser, UserOperations::RoleAdmin],
+                        'matchCallback' => function () {
+                            $this->redirect('/user/login');
+                        }
                     ]
                 ]
             ]
         ];
+    }
+    public function actionProfile()
+    {
+        $this->view->title = 'Мой профиль';
+        $error_message = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['btn_change_password_form'])){
+            $current_password = !empty($_POST['current_password']) ? $_POST['current_password'] : null;
+            $new_password = !empty($_POST['new_password']) ? $_POST['new_password'] : null;
+            $confirm_new_password = !empty($_POST['confirm_new_password']) ? $_POST['confirm_new_password'] : null;
+
+            $userModel = new UsersModel();
+            $result_auth = $userModel->changePasswordByCurrentPassword(
+                $current_password, $new_password, $confirm_new_password
+            );
+            if ($result_auth['result']) {
+                $this->redirect('/user/profile');
+            } else {
+                $error_message = $result_auth['error_message'];
+            }
+        }
+        $this->render('profile', [
+            'sidebar' =>UserOperations::getMenuLinks(),
+            'error_message' => $error_message
+        ]);
+
     }
 
     public function actionRegistration()
@@ -75,6 +101,7 @@ class UserController extends InitController
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['btn_login_form'])) {
             $login = !empty($_POST['login']) ? $_POST['login'] : null;
             $password = !empty($_POST['password']) ? $_POST['password'] : null;
+
             $userModel = new  UsersModel();
             $result_auth = $userModel->authBylogin($login, $password);
             if ($result_auth['result']) {
@@ -95,6 +122,7 @@ class UserController extends InitController
         $params = require 'app/config/params.php';
         $this->redirect('/' . $params['defaultController'] . '/' . $params['defaultAction']);
     }
+
 }
 
 
