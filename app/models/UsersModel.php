@@ -72,6 +72,27 @@ class UsersModel extends BaseModel
             $error_message .= "Пароли не совпадают!<br>";
         }
 
+        if (empty($error_message)) {
+            $users = $this->select('select * from users where login = :login', [
+                'login' =>$_SESSION['user']['login']
+            ]);
+            if (!empty($users[0])) {
+                $passwordCorrect = password_verify($current_password, $users[0]['password']);
+
+                if ($passwordCorrect) {
+                    $new_password = password_hash($new_password, PASSWORD_DEFAULT);
+                    $updatePassword = $this->update('update users set password = :password where login = :login', [
+                        'login' =>$_SESSION['user']['login'],
+                        'password' =>$new_password
+                    ]);
+                    $result = $updatePassword;
+                } else {
+                    $error_message .= "Неверный пароль!<br>";
+                }
+            } else {
+                $error_message .= "Произошла ошибка при смене пароля!<br>";
+            }
+        }
         return [
             'result' => $result,
             'error_message' => $error_message
