@@ -48,7 +48,7 @@
                                            maxlength="120"
                                            value="<?= !empty($_POST['news']['short_description'])
                                                ? $_POST['news']['short_description']
-                                               : !empty($news['short_description']) ? $news['short_description'] : ''
+                                               : (!empty($news['short_description']) ? $news['short_description'] :'')
                                            ?>"
                                            placeholder="Введите краткое описание"
                                     >
@@ -61,10 +61,10 @@
                                             id="field_description"
                                             cols="50"
                                             rows="8"
-                                            placeholder="Введиет описание"
+                                            placeholder="Введите описание"
                                     ><?= !empty($_POST['news']['description'])
                                             ? $_POST['news']['description']
-                                            : !empty($news['description']) ? $news['description'] : ''
+                                            : (!empty($news['description']) ? $news['description'] : '')
                                         ?></textarea>
                                 </div>
 

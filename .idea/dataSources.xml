@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/frame</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="potok_8@194.190.152.134" uuid="021f076d-a802-470b-aaad-09b828d09e4d">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://194.190.152.134:5432/potok_8</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
